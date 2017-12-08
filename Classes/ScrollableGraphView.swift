@@ -653,24 +653,24 @@ import UIKit
         }
     }
     
-    private func getData(forPlot plot: Plot, andActiveInterval activeInterval: CountableRange<Int>) -> [Double] {
+    private func getData(forPlot plot: Plot, andActiveInterval activeInterval: CountableRange<Int>) -> [TimeBasedDataPoint] {
         
-        var dataForInterval = [Double]()
+        var dataForInterval = [TimeBasedDataPoint]()
         
         for i in activeInterval.startIndex ..< activeInterval.endIndex {
-            let dataForIndexI = dataSource?.value(forPlot: plot, atIndex: i) ?? 0
+            let dataForIndexI = dataSource?.value(forPlot: plot, atIndex: i) ?? TimeBasedDataPoint(time: 0, value: 0)
             dataForInterval.append(dataForIndexI)
         }
         
         return dataForInterval
     }
     
-    private func getData(forPlot plot: Plot, andNewlyActivatedPoints activatedPoints: [Int]) -> [Double] {
+    private func getData(forPlot plot: Plot, andNewlyActivatedPoints activatedPoints: [Int]) -> [TimeBasedDataPoint] {
         
-        var dataForActivatedPoints = [Double]()
+        var dataForActivatedPoints = [TimeBasedDataPoint]()
         
         for activatedPoint in activatedPoints {
-            let dataForActivatedPoint = dataSource?.value(forPlot: plot, atIndex: activatedPoint) ?? 0
+            let dataForActivatedPoint = dataSource?.value(forPlot: plot, atIndex: activatedPoint) ?? TimeBasedDataPoint(time: 0, value: 0)
             dataForActivatedPoints.append(dataForActivatedPoint)
         }
         

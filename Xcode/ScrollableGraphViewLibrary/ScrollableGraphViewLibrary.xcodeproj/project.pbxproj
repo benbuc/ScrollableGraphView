@@ -32,6 +32,7 @@
 		9CFC209E1FDA905700B72202 /* Plot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFC208C1FDA905700B72202 /* Plot.swift */; };
 		9CFC209F1FDA905700B72202 /* LinePlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFC208D1FDA905700B72202 /* LinePlot.swift */; };
 		9CFC20A01FDA905700B72202 /* DotPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFC208E1FDA905700B72202 /* DotPlot.swift */; };
+		9CFC20A21FDAA9E400B72202 /* TimeBasedDataPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFC20A11FDAA9E400B72202 /* TimeBasedDataPoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +84,7 @@
 		9CFC208C1FDA905700B72202 /* Plot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plot.swift; sourceTree = "<group>"; };
 		9CFC208D1FDA905700B72202 /* LinePlot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinePlot.swift; sourceTree = "<group>"; };
 		9CFC208E1FDA905700B72202 /* DotPlot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DotPlot.swift; sourceTree = "<group>"; };
+		9CFC20A11FDAA9E400B72202 /* TimeBasedDataPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeBasedDataPoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +172,7 @@
 				9CFC20811FDA905700B72202 /* Protocols */,
 				9CFC20841FDA905700B72202 /* Reference */,
 				9CFC20871FDA905700B72202 /* Plots */,
+				9CFC20A11FDAA9E400B72202 /* TimeBasedDataPoint.swift */,
 			);
 			name = Classes;
 			path = ../../../Classes;
@@ -373,6 +376,7 @@
 				9CFC1FF81FDA8E3500B72202 /* ViewController.swift in Sources */,
 				9CFC209D1FDA905700B72202 /* GraphPoint.swift in Sources */,
 				9CFC20941FDA905700B72202 /* LineDrawingLayer.swift in Sources */,
+				9CFC20A21FDAA9E400B72202 /* TimeBasedDataPoint.swift in Sources */,
 				9CFC20991FDA905700B72202 /* ReferenceLines.swift in Sources */,
 				9CFC20981FDA905700B72202 /* ScrollableGraphViewDataSource.swift in Sources */,
 				9CFC20961FDA905700B72202 /* ScrollableGraphView.swift in Sources */,

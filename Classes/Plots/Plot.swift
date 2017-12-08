@@ -160,7 +160,7 @@ open class Plot {
     // When active interval changes, need to set the position for any NEWLY ACTIVATED points, otherwise
     // they will come on screen at the incorrect position.
     // Needs to be called when the active interval has changed and during initial setup.
-    internal func setPlotPointPositions(forNewlyActivatedPoints newPoints: CountableRange<Int>, withData data: [Double]) {
+    internal func setPlotPointPositions(forNewlyActivatedPoints newPoints: CountableRange<Int>, withData data: [TimeBasedDataPoint]) {
         
         for i in newPoints.startIndex ..< newPoints.endIndex {
             // e.g.
