@@ -45,9 +45,9 @@ import UIKit
     /// Forces the graph's minimum to always be zero. Used in conjunction with shouldAutomaticallyDetectRange or shouldAdaptRange, if you want to force the minimum to stay at 0 rather than the detected minimum.
     @IBInspectable open var shouldRangeAlwaysStartAtZero: Bool = false
     /// The minimum value for the y-axis. This is ignored when shouldAutomaticallyDetectRange or shouldAdaptRange = true
-    @IBInspectable open var rangeMin: Double = 0
+    @IBInspectable open var yRangeMin: Double = 0
     /// The maximum value for the y-axis. This is ignored when shouldAutomaticallyDetectRange or shouldAdaptRange = true
-    @IBInspectable open var rangeMax: Double = 100
+    @IBInspectable open var yRangeMax: Double = 100
     
     // Adapting & Animations
     // #####################
@@ -114,9 +114,9 @@ import UIKit
         }
     }
     
-    private var range: (min: Double, max: Double) = (0, 100) {
+    private var yRange: (min: Double, max: Double) = (0, 100) {
         didSet {
-            if(oldValue.min != range.min || oldValue.max != range.max) {
+            if(oldValue.min != yRange.min || oldValue.max != yRange.max) {
                 if !isCurrentlySettingUp { rangeDidChange() }
             }
         }
@@ -220,21 +220,21 @@ import UIKit
         // Calculate the range for the points we can actually see.
         
         #if TARGET_INTERFACE_BUILDER
-            self.range = (min: rangeMin, max: rangeMax)
+            self.yRange = (min: yRangeMin, max: yRangeMax)
         #else
             // Need to calculate the range across all plots to get the min and max for all plots.
             if (shouldAdaptRange) { // This overwrites anything specified by rangeMin and rangeMax
                 let range = calculateRange(forActivePointsInterval: initialActivePointsInterval)
-                self.range = range
+                self.yRange = range
             }
             else {
-                self.range = (min: rangeMin, max: rangeMax) // just use what the user specified instead.
+                self.yRange = (min: yRangeMin, max: yRangeMax) // just use what the user specified instead.
             }
         #endif
         
         // If the graph was given all 0s as data, we can't use a range of 0->0, so make sure we have a sensible range at all times.
-        if (self.range.min == 0 && self.range.max == 0) {
-            self.range = (min: 0, max: rangeMax)
+        if (self.yRange.min == 0 && self.yRange.max == 0) {
+            self.yRange = (min: 0, max: yRangeMax)
         }
         
         // 6.
@@ -295,7 +295,7 @@ import UIKit
                 referenceLineThickness: referenceLines.referenceLineThickness,
                 referenceLineSettings: referenceLines)
             
-            referenceLineView?.set(range: self.range)
+            referenceLineView?.set(range: self.yRange)
             
             self.addSubview(referenceLineView!)
         }
@@ -367,7 +367,7 @@ import UIKit
                 // We need to only calculate the range if the active points interval has changed!
                 #if !TARGET_INTERFACE_BUILDER
                     let newRange = calculateRange(forActivePointsInterval: newActivePointsInterval)
-                    self.range = newRange
+                    self.yRange = newRange
                 #endif
             }
         }
@@ -489,7 +489,7 @@ import UIKit
             plot.setup() // Only init the animations for plots if we are not in IB
         #endif
         
-        plot.createPlotPoints(numberOfPoints: dataSource!.numberOfPoints(), range: range) // TODO: removed forced unwrap
+        plot.createPlotPoints(numberOfPoints: dataSource!.numberOfPoints(), range: yRange) // TODO: removed forced unwrap
         
         // If we are not animating on startup then just set all the plot positions to their respective values
         if(!shouldAnimateOnStartup) {
@@ -586,7 +586,7 @@ import UIKit
         
         // We don't have any active points, return defaults.
         if(dataForActivePoints.count == 0) {
-            return (min: self.rangeMin, max: self.rangeMax)
+            return (min: self.yRangeMin, max: self.yRangeMax)
         }
         else {
             
@@ -630,7 +630,7 @@ import UIKit
             
             // If we have all negative numbers and the max happens to be 0, there will cause a division by 0. Return the default height.
             if(range.max == 0) {
-                max = rangeMax
+                max = yRangeMax
             }
             
             return (min: min, max: max)
@@ -724,7 +724,7 @@ import UIKit
             }
         }
         
-        referenceLineView?.set(range: range)
+        referenceLineView?.set(range: yRange)
     }
     
     private func viewportDidChange() {
@@ -820,7 +820,7 @@ import UIKit
             
             // self.range.min is the current ranges minimum that has been detected
             // self.rangeMin is the minimum that should be used as specified by the user
-            let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+            let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
             let position = calculatePosition(atIndex: point, value: rangeMin)
             
             label.frame = CGRect(origin: CGPoint(x: position.x - label.frame.width / 2, y: position.y + ref.dataPointLabelTopMargin), size: label.frame.size)
@@ -855,7 +855,7 @@ import UIKit
         
         for label in labelPool.activeLabels {
             
-            let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+            let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
             let position = calculatePosition(atIndex: 0, value: rangeMin)
             
             label.frame.origin.y = position.y + ref.dataPointLabelTopMargin
@@ -877,14 +877,14 @@ import UIKit
     // MARK: - Drawing Delegate
     // ########################
     
-    internal func calculatePosition(atIndex index: Int, dataPoint: TimeBasedDataPoint) -> CGPoint {
+    internal func calculatePosition(dataPoint: TimeBasedDataPoint) -> CGPoint {
         
         // Set range defaults based on settings:
         
         // self.range.min/max is the current ranges min/max that has been detected
         // self.rangeMin/Max is the min/max that should be used as specified by the user
-        let rangeMax = (shouldAdaptRange) ? self.range.max : self.rangeMax
-        let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+        let rangeMax = (shouldAdaptRange) ? self.yRange.max : self.yRangeMax
+        let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
         
         //                                                     y = the y co-ordinate in the view for the value in the graph
         //                                                     value = the value on the graph for which we want to know its
@@ -918,7 +918,7 @@ import UIKit
     }
     
     internal func rangeForActivePoints() -> (min: Double, max: Double) {
-        return range
+        return yRange
     }
     
     internal func paddingForPoints() -> (leftmostPointPadding: CGFloat, rightmostPointPadding: CGFloat) {
