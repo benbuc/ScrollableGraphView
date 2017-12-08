@@ -146,12 +146,11 @@ open class Plot {
         animatePlotPointPositions(forPoints: pointsToAnimate, withData: data, withDelay: stagger)
     }
     
-    internal func createPlotPoints(numberOfPoints: Int, range: (min: Double, max: Double)) {
-        for i in 0 ..< numberOfPoints {
-            
+    internal func createPlotPoints(dataPoints: [TimeBasedDataPoint], range: (min: Double, max: Double)) {
+        for dataPoint in dataPoints {
             let value = range.min
             
-            let position = graphViewDrawingDelegate.calculatePosition(atIndex: i, value: value)
+            let position = graphViewDrawingDelegate.calculatePosition(dataPoint: TimeBasedDataPoint(time: dataPoint.time, value: value))
             let point = GraphPoint(position: position)
             graphPoints.append(point)
         }
@@ -168,9 +167,9 @@ open class Plot {
             // data positions: 0...10 = // 0 to (end - start)
             let dataPosition = i - newPoints.startIndex
             
-            let value = data[dataPosition].value
+            let dataPoint = data[dataPosition]
             
-            let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: i, value: value)
+            let newPosition = graphViewDrawingDelegate.calculatePosition(dataPoint: dataPoint)
             graphPoints[i].x = newPosition.x
             graphPoints[i].y = newPosition.y
         }
@@ -183,8 +182,8 @@ open class Plot {
         for activatedPointIndex in activatedPoints {
             
             let dataPosition = index
-            let value = data[dataPosition].value
-            let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: activatedPointIndex, value: value)
+            let dataPoint = data[dataPosition]
+            let newPosition = graphViewDrawingDelegate.calculatePosition(dataPoint: dataPoint)
             graphPoints[activatedPointIndex].x = newPosition.x
             graphPoints[activatedPointIndex].y = newPosition.y
             
@@ -199,7 +198,7 @@ open class Plot {
         // For any visible points, kickoff the animation to their new position after the axis' min/max has changed.
         var dataIndex = 0
         for pointIndex in pointsToAnimate {
-            let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: pointIndex, value: data[dataIndex].value)
+            let newPosition = graphViewDrawingDelegate.calculatePosition(dataPoint: data[dataIndex])
             let point = graphPoints[pointIndex]
             animate(point: point, to: newPosition, withDelay: Double(dataIndex) * delay)
             dataIndex += 1

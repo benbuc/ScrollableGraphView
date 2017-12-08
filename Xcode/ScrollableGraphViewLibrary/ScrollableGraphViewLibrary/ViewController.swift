@@ -14,11 +14,15 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
     }
     
     func label(atIndex pointIndex: Int) -> String {
-        return "\(pointIndex)"
+        return "\(data[pointIndex].time)"
     }
     
     func numberOfPoints() -> Int {
         return data.count
+    }
+    
+    func getAllPoints() -> [TimeBasedDataPoint] {
+        return data
     }
     
     
@@ -33,18 +37,21 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         // display an example chart
         
         data = [
-            TimeBasedDataPoint(time: 10, value: 5),
-            TimeBasedDataPoint(time: 20, value: 10),
-            TimeBasedDataPoint(time: 25, value: 50),
-            TimeBasedDataPoint(time: 50, value: 30)
+            TimeBasedDataPoint(time: 0, value: 10),
+            TimeBasedDataPoint(time: 10, value: 20),
+            TimeBasedDataPoint(time: 20, value: 50),
+            TimeBasedDataPoint(time: 50, value: 60),
+            TimeBasedDataPoint(time: 100, value: 100)
         ]
         
         chartView.dataSource = self
+        chartView.leftmostPointPadding = 0.0
+        chartView.rightmostPointPadding = 100.0
         
         let testPlot = LinePlot(identifier: "testPlot")
         testPlot.lineWidth = 3
         testPlot.lineColor = UIColor.white
-        testPlot.lineStyle = ScrollableGraphViewLineStyle.smooth
+        testPlot.lineStyle = ScrollableGraphViewLineStyle.straight
         testPlot.shouldFill = true
         testPlot.fillType = ScrollableGraphViewFillType.gradient
         testPlot.fillColor = UIColor.white
@@ -66,8 +73,8 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         chartView.dataPointSpacing = 80
         chartView.shouldAnimateOnStartup = true
         chartView.shouldAdaptRange = false
-        chartView.rangeMax = 100.0
-        chartView.rangeMin = 0.0
+        chartView.yRangeMax = 100.0
+        chartView.yRangeMin = 0.0
         chartView.shouldRangeAlwaysStartAtZero = true
         // let the newest result be visible (without it start at the left -> user has to scroll first)
         chartView.direction = .rightToLeft

@@ -51,7 +51,7 @@ internal class LineDrawingLayer : ScrollableGraphViewDrawingLayer {
         let pointPadding = delegate.paddingForPoints()
         
         let min = delegate.rangeForActivePoints().min
-        zeroYPosition = delegate.calculatePosition(atIndex: 0, value: min).y
+        zeroYPosition = delegate.calculatePosition(dataPoint: TimeBasedDataPoint(time: 0, value: min)).y
         
         let viewport = delegate.currentViewport()
         let viewportWidth = viewport.width

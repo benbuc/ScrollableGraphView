@@ -22,9 +22,9 @@ import UIKit
     /// How far the "minimum" reference line is from the bottom of the view's frame. In points.
     @IBInspectable open var bottomMargin: CGFloat = 10
     /// How far the first point on the graph should be placed from the left hand side of the view.
-    @IBInspectable open var leftmostPointPadding: CGFloat = 50
+    @IBInspectable open var leftmostPointPadding: CGFloat = 10
     /// How far the final point on the graph should be placed from the right hand side of the view.
-    @IBInspectable open var rightmostPointPadding: CGFloat = 50
+    @IBInspectable open var rightmostPointPadding: CGFloat = 10
     /// How much space should be between each data point.
     @IBInspectable open var dataPointSpacing: CGFloat = 40
     
@@ -121,6 +121,9 @@ import UIKit
             }
         }
     }
+    
+    private var standardXRange: (min: Double, max: Double) = (0,100)
+    private var zoomLevel: Double = 1.0
     
     // MARK: - INIT, SETUP & VIEWPORT RESIZING
     // #######################################
@@ -489,7 +492,7 @@ import UIKit
             plot.setup() // Only init the animations for plots if we are not in IB
         #endif
         
-        plot.createPlotPoints(numberOfPoints: dataSource!.numberOfPoints(), range: yRange) // TODO: removed forced unwrap
+        plot.createPlotPoints(dataPoints: dataSource!.getAllPoints(), range: yRange)
         
         // If we are not animating on startup then just set all the plot positions to their respective values
         if(!shouldAnimateOnStartup) {
@@ -642,7 +645,7 @@ import UIKit
     
     private func graphWidth(forNumberOfDataPoints numberOfPoints: Int) -> CGFloat {
         let width: CGFloat = (CGFloat(numberOfPoints - 1) * dataPointSpacing) + (leftmostPointPadding + rightmostPointPadding)
-        return width
+        return self.viewportWidth - (leftmostPointPadding + rightmostPointPadding)
     }
     
     private func clamp<T: Comparable>(value:T, min:T, max:T) -> T {
@@ -821,7 +824,9 @@ import UIKit
             // self.range.min is the current ranges minimum that has been detected
             // self.rangeMin is the minimum that should be used as specified by the user
             let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
-            let position = calculatePosition(atIndex: point, value: rangeMin)
+            
+            // TO-DO: This is a bit hacky currently. Just using the first plot to generate a label
+            let position = calculatePosition(dataPoint: TimeBasedDataPoint(time: dataSource!.value(forPlot: self.plots[0], atIndex: point).time, value: rangeMin))
             
             label.frame = CGRect(origin: CGPoint(x: position.x - label.frame.width / 2, y: position.y + ref.dataPointLabelTopMargin), size: label.frame.size)
             
@@ -856,7 +861,7 @@ import UIKit
         for label in labelPool.activeLabels {
             
             let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
-            let position = calculatePosition(atIndex: 0, value: rangeMin)
+            let position = calculatePosition(dataPoint: TimeBasedDataPoint(time: 0, value: rangeMin))
             
             label.frame.origin.y = position.y + ref.dataPointLabelTopMargin
         }
@@ -883,8 +888,11 @@ import UIKit
         
         // self.range.min/max is the current ranges min/max that has been detected
         // self.rangeMin/Max is the min/max that should be used as specified by the user
-        let rangeMax = (shouldAdaptRange) ? self.yRange.max : self.yRangeMax
-        let rangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
+        let yRangeMax = (shouldAdaptRange) ? self.yRange.max : self.yRangeMax
+        let yRangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
+        
+        let xRangeMax = self.standardXRange.max
+        let xRangeMin = self.standardXRange.min
         
         //                                                     y = the y co-ordinate in the view for the value in the graph
         //                                                     value = the value on the graph for which we want to know its
@@ -907,8 +915,13 @@ import UIKit
         let yDataPointValue = dataPoint.value
         
         //let x = (CGFloat(index) * dataPointSpacing) + leftmostPointPadding
-        let x = (CGFloat(xDataPointValue) / 1.0) // TO-DO: there has to be some kind of scaler
-        let y = (CGFloat((yDataPointValue - rangeMax) / (rangeMin - rangeMax)) * graphHeight) + topMargin
+        //let x = (CGFloat(xDataPointValue) / 1.0) // TO-DO: there has to be some kind of scaler
+        let m = (Double(totalGraphWidth) / (xRangeMax - xRangeMin))
+        let n = -((Double(totalGraphWidth)*xRangeMin) / (xRangeMax - xRangeMin))
+        let x = CGFloat(m * xDataPointValue + n + Double(leftmostPointPadding))
+        print("leftmostPadding: \(leftmostPointPadding)")
+        print("totalGraphWidth: \(totalGraphWidth)")
+        let y = (CGFloat((yDataPointValue - yRangeMax) / (yRangeMin - yRangeMax)) * graphHeight) + topMargin
         
         return CGPoint(x: x, y: y)
     }
@@ -932,7 +945,7 @@ import UIKit
     // Update any paths with the new path based on visible data points.
     internal func updatePaths() {
         
-        zeroYPosition = calculatePosition(atIndex: 0, value: self.range.min).y
+        zeroYPosition = calculatePosition(dataPoint: TimeBasedDataPoint(time: 0, value: self.yRange.min)).y
         
         if let drawingLayers = drawingView.layer.sublayers {
             for layer in drawingLayers {
