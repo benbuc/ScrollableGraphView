@@ -141,7 +141,7 @@ open class Plot {
         return dt
     }
     
-    internal func startAnimations(forPoints pointsToAnimate: CountableRange<Int>, withData data: [Double], withStaggerValue stagger: Double) {
+    internal func startAnimations(forPoints pointsToAnimate: CountableRange<Int>, withData data: [TimeBasedDataPoint], withStaggerValue stagger: Double) {
         
         animatePlotPointPositions(forPoints: pointsToAnimate, withData: data, withDelay: stagger)
     }
@@ -177,7 +177,7 @@ open class Plot {
     }
     
     // Same as a above, but can take an array with the indicies of the activated points rather than a range.
-    internal func setPlotPointPositions(forNewlyActivatedPoints activatedPoints: [Int], withData data: [Double]) {
+    internal func setPlotPointPositions(forNewlyActivatedPoints activatedPoints: [Int], withData data: [TimeBasedDataPoint]) {
         
         var index = 0
         for activatedPointIndex in activatedPoints {

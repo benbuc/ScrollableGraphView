@@ -579,6 +579,7 @@ import UIKit
     }
     
     // Calculate the range for a single plot.
+    // Calculates the Y-Axis range
     private func calculateRange(forPlot plot: Plot, forActivePointsInterval interval: CountableRange<Int>) -> (min: Double, max: Double) {
         
         let dataForActivePoints = getData(forPlot: plot, andActiveInterval: interval)
@@ -594,18 +595,21 @@ import UIKit
         }
     }
     
-    private func calculateRange<T: Collection>(for data: T) -> (min: Double, max: Double) where T.Iterator.Element == Double {
+    private func calculateRange<T: Collection>(for data: T) -> (min: Double, max: Double) where T.Iterator.Element == TimeBasedDataPoint {
         
         var rangeMin: Double = Double(Int.max)
         var rangeMax: Double = Double(Int.min)
         
         for dataPoint in data {
-            if (dataPoint > rangeMax) {
-                rangeMax = dataPoint
+            // We are working on the Y-Axis
+            let dataPointValue = dataPoint.value
+            
+            if (dataPointValue > rangeMax) {
+                rangeMax = dataPoint.value
             }
             
-            if (dataPoint < rangeMin) {
-                rangeMin = dataPoint
+            if (dataPointValue < rangeMin) {
+                rangeMin = dataPoint.value
             }
         }
         return (min: rangeMin, max: rangeMax)

@@ -23,7 +23,15 @@ public class TimeBasedDataPoint: Comparable {
         return lhs.value < rhs.value
     }
     
+    public static func > (lhs: TimeBasedDataPoint, rhs: TimeBasedDataPoint) -> Bool {
+        return lhs.value > rhs.value
+    }
+    
     public static func == (lhs: TimeBasedDataPoint, rhs: TimeBasedDataPoint) -> Bool {
         return lhs.value == rhs.value
+    }
+    
+    public func add (num: Double) {
+        self.value += num
     }
 }
