@@ -877,7 +877,7 @@ import UIKit
     // MARK: - Drawing Delegate
     // ########################
     
-    internal func calculatePosition(atIndex index: Int, value: Double) -> CGPoint {
+    internal func calculatePosition(atIndex index: Int, dataPoint: TimeBasedDataPoint) -> CGPoint {
         
         // Set range defaults based on settings:
         
@@ -903,8 +903,12 @@ import UIKit
             }
         }
         
-        let x = (CGFloat(index) * dataPointSpacing) + leftmostPointPadding
-        let y = (CGFloat((value - rangeMax) / (rangeMin - rangeMax)) * graphHeight) + topMargin
+        let xDataPointValue = dataPoint.time
+        let yDataPointValue = dataPoint.value
+        
+        //let x = (CGFloat(index) * dataPointSpacing) + leftmostPointPadding
+        let x = (CGFloat(xDataPointValue) / 1.0) // TO-DO: there has to be some kind of scaler
+        let y = (CGFloat((yDataPointValue - rangeMax) / (rangeMin - rangeMax)) * graphHeight) + topMargin
         
         return CGPoint(x: x, y: y)
     }
