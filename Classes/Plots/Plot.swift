@@ -168,7 +168,7 @@ open class Plot {
             // data positions: 0...10 = // 0 to (end - start)
             let dataPosition = i - newPoints.startIndex
             
-            let value = data[dataPosition]
+            let value = data[dataPosition].value
             
             let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: i, value: value)
             graphPoints[i].x = newPosition.x
@@ -183,8 +183,7 @@ open class Plot {
         for activatedPointIndex in activatedPoints {
             
             let dataPosition = index
-            let value = data[dataPosition]
-            
+            let value = data[dataPosition].value
             let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: activatedPointIndex, value: value)
             graphPoints[activatedPointIndex].x = newPosition.x
             graphPoints[activatedPointIndex].y = newPosition.y
@@ -196,11 +195,11 @@ open class Plot {
     // When the range changes, we need to set the position for any VISIBLE points, either animating or setting directly
     // depending on the settings.
     // Needs to be called when the range has changed.
-    internal func animatePlotPointPositions(forPoints pointsToAnimate: CountableRange<Int>, withData data: [Double], withDelay delay: Double) {
+    internal func animatePlotPointPositions(forPoints pointsToAnimate: CountableRange<Int>, withData data: [TimeBasedDataPoint], withDelay delay: Double) {
         // For any visible points, kickoff the animation to their new position after the axis' min/max has changed.
         var dataIndex = 0
         for pointIndex in pointsToAnimate {
-            let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: pointIndex, value: data[dataIndex])
+            let newPosition = graphViewDrawingDelegate.calculatePosition(atIndex: pointIndex, value: data[dataIndex].value)
             let point = graphPoints[pointIndex]
             animate(point: point, to: newPosition, withDelay: Double(dataIndex) * delay)
             dataIndex += 1
