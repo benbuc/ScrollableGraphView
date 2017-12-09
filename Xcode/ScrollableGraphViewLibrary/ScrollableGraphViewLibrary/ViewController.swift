@@ -39,14 +39,14 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         data = [
             TimeBasedDataPoint(time: 0, value: 10),
             TimeBasedDataPoint(time: 10, value: 20),
-            TimeBasedDataPoint(time: 20, value: 50),
-            TimeBasedDataPoint(time: 50, value: 60),
+            TimeBasedDataPoint(time: 50, value: 50),
+            TimeBasedDataPoint(time: 75, value: 60),
             TimeBasedDataPoint(time: 100, value: 100)
         ]
         
         chartView.dataSource = self
-        chartView.leftmostPointPadding = 0.0
-        chartView.rightmostPointPadding = 100.0
+        chartView.leftmostPointPadding = 10.0
+        chartView.rightmostPointPadding = 10.0
         
         let testPlot = LinePlot(identifier: "testPlot")
         testPlot.lineWidth = 3
@@ -70,14 +70,13 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         chartView.backgroundFillColor = self.view.backgroundColor!
         
         // Make a data point for every day
-        chartView.dataPointSpacing = 80
         chartView.shouldAnimateOnStartup = true
         chartView.shouldAdaptRange = false
         chartView.yRangeMax = 100.0
         chartView.yRangeMin = 0.0
         chartView.shouldRangeAlwaysStartAtZero = true
         // let the newest result be visible (without it start at the left -> user has to scroll first)
-        chartView.direction = .rightToLeft
+        //chartView.direction = .rightToLeft
         
         
         // Add everything to the graph

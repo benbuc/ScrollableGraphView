@@ -25,8 +25,6 @@ import UIKit
     @IBInspectable open var leftmostPointPadding: CGFloat = 10
     /// How far the final point on the graph should be placed from the right hand side of the view.
     @IBInspectable open var rightmostPointPadding: CGFloat = 10
-    /// How much space should be between each data point.
-    @IBInspectable open var dataPointSpacing: CGFloat = 40
     
     @IBInspectable var direction_: Int {
         get { return direction.rawValue }
@@ -122,8 +120,7 @@ import UIKit
         }
     }
     
-    private var standardXRange: (min: Double, max: Double) = (0,100)
-    private var zoomLevel: Double = 1.0
+    private var xRange: (start: Double, width: Double) = (0,40)
     
     // MARK: - INIT, SETUP & VIEWPORT RESIZING
     // #######################################
@@ -519,10 +516,36 @@ import UIKit
     private func calculateActivePointsInterval() -> CountableRange<Int> {
         
         // Calculate the "active points"
-        let min = Int((offsetWidth) / dataPointSpacing)
-        let max = Int(((offsetWidth + viewportWidth)) / dataPointSpacing)
+        //let min = Int((offsetWidth) / dataPointSpacing)
+        //let max = Int(((offsetWidth + viewportWidth)) / dataPointSpacing)
+        let min = xRange.start
+        let max = xRange.start + xRange.width
         
-        // Add and minus two so the path goes "off the screen" so we can't see where it ends.
+        var minIndex = 0
+        var maxIndex = 0
+        
+        let dataPoints = dataSource!.getAllPoints()
+        
+        for i in 0...dataPoints.count-1 {
+            if dataPoints[i].time >= min && dataPoints[i].time < dataPoints[minIndex].time {
+                minIndex = i
+            }
+            if dataPoints[i].time <= max && dataPoints[i].time > dataPoints[maxIndex].time {
+                maxIndex = i
+            }
+        }
+        
+        // check whether max and min index can be increased /decreased so that path goes of the screen
+        if maxIndex < dataPoints.count - 1 {
+            maxIndex += 1
+        }
+        if minIndex > 0 {
+            minIndex -= 1
+        }
+        
+        return minIndex..<maxIndex+1
+        
+        /*// Add and minus two so the path goes "off the screen" so we can't see where it ends.
         let minPossible = 0
         var maxPossible = 0
         
@@ -535,7 +558,7 @@ import UIKit
         let actualMin = clamp(value: min - numberOfPointsOffscreen, min: minPossible, max: maxPossible)
         let actualMax = clamp(value: max + numberOfPointsOffscreen, min: minPossible, max: maxPossible)
         
-        return actualMin..<actualMax.advanced(by: 1)
+        return actualMin..<actualMax.advanced(by: 1)*/
     }
     
     // Calculate the range across all plots.
@@ -644,7 +667,6 @@ import UIKit
     }
     
     private func graphWidth(forNumberOfDataPoints numberOfPoints: Int) -> CGFloat {
-        let width: CGFloat = (CGFloat(numberOfPoints - 1) * dataPointSpacing) + (leftmostPointPadding + rightmostPointPadding)
         return self.viewportWidth - (leftmostPointPadding + rightmostPointPadding)
     }
     
@@ -891,8 +913,8 @@ import UIKit
         let yRangeMax = (shouldAdaptRange) ? self.yRange.max : self.yRangeMax
         let yRangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
         
-        let xRangeMax = self.standardXRange.max
-        let xRangeMin = self.standardXRange.min
+        let xRangeMax = self.xRange.start + self.xRange.width
+        let xRangeMin = self.xRange.start
         
         //                                                     y = the y co-ordinate in the view for the value in the graph
         //                                                     value = the value on the graph for which we want to know its
@@ -919,8 +941,6 @@ import UIKit
         let m = (Double(totalGraphWidth) / (xRangeMax - xRangeMin))
         let n = -((Double(totalGraphWidth)*xRangeMin) / (xRangeMax - xRangeMin))
         let x = CGFloat(m * xDataPointValue + n + Double(leftmostPointPadding))
-        print("leftmostPadding: \(leftmostPointPadding)")
-        print("totalGraphWidth: \(totalGraphWidth)")
         let y = (CGFloat((yDataPointValue - yRangeMax) / (yRangeMin - yRangeMax)) * graphHeight) + topMargin
         
         return CGPoint(x: x, y: y)
