@@ -181,8 +181,7 @@ import UIKit
         // Calculate the total size of the graph, need to know this for the scrollview.
         
         // Calculate the drawing frames
-        let numberOfDataPoints = dataSource?.numberOfPoints() ?? 0
-        totalGraphWidth = graphWidth(forNumberOfDataPoints: numberOfDataPoints)
+        totalGraphWidth = calculateTotalGraphWidth()
         self.contentSize = CGSize(width: totalGraphWidth, height: viewportHeight)
         
         // Scrolling direction.
@@ -380,6 +379,8 @@ import UIKit
         updateOffsetsForGradients(offsetWidth: offsetWidth)
         
         referenceLineView?.frame.origin.x = offsetWidth
+        
+        xRange.start = Double(offsetWidth)
     }
     
     private func updateOffsetsForGradients(offsetWidth: CGFloat) {
@@ -543,7 +544,8 @@ import UIKit
             minIndex -= 1
         }
         
-        return minIndex..<maxIndex+1
+        //return minIndex..<maxIndex+1
+        return 0..<dataPoints.count
         
         /*// Add and minus two so the path goes "off the screen" so we can't see where it ends.
         let minPossible = 0
@@ -666,7 +668,25 @@ import UIKit
         }
     }
     
-    private func graphWidth(forNumberOfDataPoints numberOfPoints: Int) -> CGFloat {
+    private func calculateTotalGraphWidth() -> CGFloat {
+        guard let dataSource = dataSource else {
+            return 0.0
+        }
+        
+        var currentWidth: CGFloat = 0.0
+        var dataPoints = dataSource.getAllPoints()
+        
+        for i in 1...dataPoints.count-1 {
+            let positionOfLast = calculateXPosition(xDataPointValue: dataPoints[i-1].time)
+            let positionOfCurrent = calculateXPosition(xDataPointValue: dataPoints[i].time)
+            let distance = positionOfCurrent - positionOfLast
+            currentWidth += distance
+        }
+        
+        return currentWidth + leftmostPointPadding + rightmostPointPadding
+    }
+    
+    private func visibleGraphWidth() -> CGFloat {
         return self.viewportWidth - (leftmostPointPadding + rightmostPointPadding)
     }
     
@@ -901,6 +921,18 @@ import UIKit
         return points.filter({ $0 % ref.dataPointLabelsSparsity == 0 })
     }
     
+    private func calculateXPosition(xDataPointValue: Double) -> CGFloat {
+        let xRangeMax = self.xRange.start + self.xRange.width
+        let xRangeMin = self.xRange.start
+        
+        let visibleGraphWidth = self.visibleGraphWidth()
+        let m = (Double(visibleGraphWidth) / (xRangeMax - xRangeMin))
+        let n = -((Double(visibleGraphWidth)*xRangeMin) / (xRangeMax - xRangeMin))
+        let x = CGFloat(m * xDataPointValue + n + Double(leftmostPointPadding))
+        
+        return x
+    }
+    
     // MARK: - Drawing Delegate
     // ########################
     
@@ -912,9 +944,6 @@ import UIKit
         // self.rangeMin/Max is the min/max that should be used as specified by the user
         let yRangeMax = (shouldAdaptRange) ? self.yRange.max : self.yRangeMax
         let yRangeMin = (shouldAdaptRange) ? self.yRange.min : self.yRangeMin
-        
-        let xRangeMax = self.xRange.start + self.xRange.width
-        let xRangeMin = self.xRange.start
         
         //                                                     y = the y co-ordinate in the view for the value in the graph
         //                                                     value = the value on the graph for which we want to know its
@@ -938,9 +967,7 @@ import UIKit
         
         //let x = (CGFloat(index) * dataPointSpacing) + leftmostPointPadding
         //let x = (CGFloat(xDataPointValue) / 1.0) // TO-DO: there has to be some kind of scaler
-        let m = (Double(totalGraphWidth) / (xRangeMax - xRangeMin))
-        let n = -((Double(totalGraphWidth)*xRangeMin) / (xRangeMax - xRangeMin))
-        let x = CGFloat(m * xDataPointValue + n + Double(leftmostPointPadding))
+        let x = calculateXPosition(xDataPointValue: xDataPointValue)
         let y = (CGFloat((yDataPointValue - yRangeMax) / (yRangeMin - yRangeMax)) * graphHeight) + topMargin
         
         return CGPoint(x: x, y: y)

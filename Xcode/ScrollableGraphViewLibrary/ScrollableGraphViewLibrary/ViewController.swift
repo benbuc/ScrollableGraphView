@@ -51,7 +51,7 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         let testPlot = LinePlot(identifier: "testPlot")
         testPlot.lineWidth = 3
         testPlot.lineColor = UIColor.white
-        testPlot.lineStyle = ScrollableGraphViewLineStyle.straight
+        testPlot.lineStyle = ScrollableGraphViewLineStyle.smooth
         testPlot.shouldFill = true
         testPlot.fillType = ScrollableGraphViewFillType.gradient
         testPlot.fillColor = UIColor.white
