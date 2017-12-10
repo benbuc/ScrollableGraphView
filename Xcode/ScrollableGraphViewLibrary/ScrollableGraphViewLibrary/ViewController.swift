@@ -44,6 +44,11 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
             TimeBasedDataPoint(time: 200, value: 100)
         ]
         
+        data = [
+            TimeBasedDataPoint(time: 534617164.530824, value: 10),
+            TimeBasedDataPoint(time: 534617178.245785, value: 33)
+        ]
+        
         chartView.dataSource = self
         chartView.leftmostPointPadding = 10.0
         chartView.rightmostPointPadding = 10.0

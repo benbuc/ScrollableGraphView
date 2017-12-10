@@ -397,7 +397,7 @@ import UIKit
         
         referenceLineView?.frame.origin.x = offsetWidth
         
-        xRange.start = Double(offsetWidth)
+        //xRange.start = Double(offsetWidth)
     }
     
     private func updateOffsetsForGradients(offsetWidth: CGFloat) {
