@@ -14,7 +14,7 @@ public class TimeBasedDataPoint: Comparable {
     open var time: TimeInterval
     open var value: Double
     
-    init(time: TimeInterval, value: Double) {
+    public init(time: TimeInterval, value: Double) {
         self.time = time
         self.value = value
     }
