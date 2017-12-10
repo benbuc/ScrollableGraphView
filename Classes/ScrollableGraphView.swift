@@ -46,6 +46,8 @@ import UIKit
     @IBInspectable open var yRangeMin: Double = 0
     /// The maximum value for the y-axis. This is ignored when shouldAutomaticallyDetectRange or shouldAdaptRange = true
     @IBInspectable open var yRangeMax: Double = 100
+    @IBInspectable open var xRangeStart: Double = 0
+    @IBInspectable open var xRangeWidth: Double = 100
     
     // Adapting & Animations
     // #####################
@@ -54,6 +56,7 @@ import UIKit
     @IBInspectable open var shouldAdaptRange: Bool = false
     /// If shouldAdaptRange is set to true then this specifies whether or not the points on the graph should animate to their new positions. Default is set to true.
     @IBInspectable open var shouldAnimateOnAdapt: Bool = true
+    @IBInspectable open var shouldAdaptXRange: Bool = true
     
     /// Whether or not the graph should animate to their positions when the graph is first displayed.
     @IBInspectable open var shouldAnimateOnStartup: Bool = true
@@ -176,6 +179,20 @@ import UIKit
         
         // Add the x-axis labels view.
         self.insertSubview(labelsView, aboveSubview: drawingView)
+        
+        // Set the x-axis range
+        #if TARGET_INTERFACE_BUILDER
+            self.xRange = (start: xRangeStart, width: xRangeWidth)
+        #else
+            if (shouldAdaptXRange) { // This overwrites anything specified by rangeMin and rangeMax
+                print(self.dataSource!.numberOfPoints())
+                let range = calculateXRange(forActivePointsInterval: 0..<self.dataSource!.numberOfPoints())
+                self.xRange = range
+            }
+            else {
+                self.xRange = (start: xRangeStart, width: xRangeWidth) // just use what the user specified instead.
+            }
+        #endif
         
         // 2.
         // Calculate the total size of the graph, need to know this for the scrollview.
@@ -581,6 +598,30 @@ import UIKit
         return (min: minOfRanges, max: maxOfRanges)
     }
     
+    func updateXRange() {
+        let range = calculateXRange(forActivePointsInterval: 0..<self.dataSource!.numberOfPoints())
+        self.xRange = range
+    }
+    
+    func calculateXRange(forActivePointsInterval interval: CountableRange<Int>) -> (start: Double, width: Double) {
+        
+        // This calculates the range on the x axis for all points
+        let dataPoints = self.dataSource!.getAllPoints()
+        var min: Double = dataPoints[0].time
+        var max: Double = dataPoints[0].time
+        
+        for dataPoint in dataPoints {
+            if dataPoint.time < min {
+                min = dataPoint.time
+            }
+            if dataPoint.time > max {
+                max = dataPoint.time
+            }
+        }
+        
+        return (start: min, width: max-min)
+    }
+    
     private func max(ofAllRanges ranges: [(min: Double, max: Double)]) -> Double {
         
         var max: Double = ranges[0].max
@@ -594,12 +635,37 @@ import UIKit
         return max
     }
     
+    private func maxX(ofAllRanges ranges: [(start: Double, width: Double)]) -> Double {
+        
+        var max: Double = ranges[0].start + ranges[0].width
+        
+        for range in ranges {
+            if(range.start + range.width > max) {
+                max = range.start + range.width
+            }
+        }
+        
+        return max
+    }
+    
     private func min(ofAllRanges ranges: [(min: Double, max: Double)]) -> Double {
         var min: Double = ranges[0].min
         
         for range in ranges {
             if(range.min < min) {
                 min = range.min
+            }
+        }
+        
+        return min
+    }
+    
+    private func minX(ofAllRanges ranges: [(start: Double, width: Double)]) -> Double {
+        var min: Double = ranges[0].start
+        
+        for range in ranges {
+            if(range.start < min) {
+                min = range.start
             }
         }
         
@@ -623,6 +689,18 @@ import UIKit
         }
     }
     
+    private func calculateXRange(forPlot plot: Plot, forActivePointsInterval interval: CountableRange<Int>) -> (start: Double, width: Double) {
+        
+        let dataForActivePoints = getData(forPlot: plot, andActiveInterval: interval)
+        
+        if(dataForActivePoints.count == 0) {
+            return (start: self.xRangeStart, width: self.xRangeWidth)
+        } else {
+            let range = calculateXRange(for: dataForActivePoints)
+            return cleanX(range: range)
+        }
+    }
+    
     private func calculateRange<T: Collection>(for data: T) -> (min: Double, max: Double) where T.Iterator.Element == TimeBasedDataPoint {
         
         var rangeMin: Double = Double(Int.max)
@@ -641,6 +719,27 @@ import UIKit
             }
         }
         return (min: rangeMin, max: rangeMax)
+    }
+    
+    private func calculateXRange<T: Collection>(for data: T) -> (start: Double, width: Double) where T.Iterator.Element == TimeBasedDataPoint {
+        
+        var rangeStart: Double = Double(Int.max)
+        var rangeEnd: Double = Double(Int.min)
+        
+        for dataPoint in data {
+            // We are working on the X-Axis
+            let dataPointTime = dataPoint.time
+            
+            if (dataPointTime < rangeStart) {
+                rangeStart = dataPoint.time
+            }
+            
+            if (dataPointTime > rangeEnd) {
+                rangeEnd = dataPoint.time
+            }
+        }
+        
+        return (start: rangeStart, width: rangeEnd-rangeStart)
     }
     
     private func clean(range: (min: Double, max: Double)) -> (min: Double, max: Double){
@@ -664,6 +763,14 @@ import UIKit
             return (min: min, max: max)
         }
         else {
+            return range
+        }
+    }
+    
+    private func cleanX(range: (start: Double, width: Double)) -> (start: Double, width: Double) {
+        if (range.width == 0) {
+            return (start: range.start, width: self.xRangeWidth)
+        } else {
             return range
         }
     }

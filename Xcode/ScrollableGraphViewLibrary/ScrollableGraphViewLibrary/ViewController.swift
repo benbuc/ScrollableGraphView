@@ -41,7 +41,7 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
             TimeBasedDataPoint(time: 10, value: 20),
             TimeBasedDataPoint(time: 50, value: 50),
             TimeBasedDataPoint(time: 75, value: 60),
-            TimeBasedDataPoint(time: 100, value: 100)
+            TimeBasedDataPoint(time: 200, value: 100)
         ]
         
         chartView.dataSource = self
@@ -82,6 +82,8 @@ class ViewController: UIViewController, ScrollableGraphViewDataSource {
         // Add everything to the graph
         chartView.addReferenceLines(referenceLines: referenceLines)
         chartView.addPlot(plot: testPlot)
+        
+        chartView.updateXRange()
     }
 
     override func didReceiveMemoryWarning() {
