@@ -386,6 +386,11 @@ import UIKit
                     self.yRange = newRange
                 #endif
             }
+            
+            if (shouldAdaptXRange) {
+                let newRange = calculateXRange(forActivePointsInterval: 0..<self.dataSource!.numberOfPoints())
+                self.xRange = newRange
+            }
         }
     }
     
@@ -601,6 +606,36 @@ import UIKit
     func updateXRange() {
         let range = calculateXRange(forActivePointsInterval: 0..<self.dataSource!.numberOfPoints())
         self.xRange = range
+    }
+    
+    func updateXRange(width: TimeInterval, startAtEnd: Bool = false) {
+        // updates the xrange with a specified time width
+        // you can control whether end or start point will be visible
+        
+        let dataPoints = self.dataSource!.getAllPoints()
+        
+        var min: Double = dataPoints[0].time
+        var max: Double = dataPoints[0].time
+        
+        for dataPoint in dataPoints {
+            if dataPoint.time < min {
+                min = dataPoint.time
+            }
+            if dataPoint.time > max {
+                max = dataPoint.time
+            }
+        }
+        
+        if startAtEnd {
+            self.xRange = (start: max-width, width: width)
+            self.xRangeStart = max-width
+            self.xRangeWidth = width
+        } else {
+            print("Setting xRange")
+            self.xRange = (start: min, width: width)
+            self.xRangeStart = min
+            self.xRangeWidth = width
+        }
     }
     
     func calculateXRange(forActivePointsInterval interval: CountableRange<Int>) -> (start: Double, width: Double) {
