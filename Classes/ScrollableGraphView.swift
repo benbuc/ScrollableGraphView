@@ -603,12 +603,12 @@ import UIKit
         return (min: minOfRanges, max: maxOfRanges)
     }
     
-    func updateXRange() {
+    public func updateXRange() {
         let range = calculateXRange(forActivePointsInterval: 0..<self.dataSource!.numberOfPoints())
         self.xRange = range
     }
     
-    func updateXRange(width: TimeInterval, startAtEnd: Bool = false) {
+    public func updateXRange(width: TimeInterval, startAtEnd: Bool = false) {
         // updates the xrange with a specified time width
         // you can control whether end or start point will be visible
         
