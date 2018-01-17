@@ -440,6 +440,27 @@ import UIKit
         }
     }
     
+    public func deletePlot(identifier: String) -> Int {
+        // Removes the plot from the view using it's identifier
+        // Returns 0 on success
+        //      -1 when plot wasn't found
+        var i = 0
+        var plotIndex = -1
+        for plot_ in plots {
+            if plot_.identifier == identifier {
+                plotIndex = i
+                break
+            }
+            i += 1
+        }
+        
+        if plotIndex != -1 {
+            self.plots.remove(at: plotIndex)
+            return 0
+        }
+        return -1
+    }
+    
     public func addReferenceLines(referenceLines: ReferenceLines) {
         
         // If we aren't setup yet, just save the reference lines and the setup will take care of it.
